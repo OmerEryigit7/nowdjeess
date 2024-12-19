@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Express GET Request</title>
+    <script>
+        async function sendRequest() {
+            try {
+                const response = await fetch('http://localhost:1783');
+                const text = await response.text();
+                document.getElementById('response').textContent = text;
+            } catch (error) {
+                document.getElementById('response').textContent = ('Error:', error);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Send GET Request</h1>
+    <button onclick="sendRequest()">Send Request</button>
+    <p id="response"></p>
+</body>
+</html>
