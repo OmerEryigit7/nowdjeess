@@ -14,11 +14,22 @@
                 document.getElementById('response').textContent = ('Error:', error);
             }
         }
+        async function sendRequest2() {
+            try {
+                const response = await fetch('http://localhost:1783/books');
+                const data = await response.json();
+                console.log('Data from server:', data);  // This will log in the browser's console
+            } catch (error) {
+                
+            }
+        }
+
+        sendRequest2();
     </script>
 </head>
 <body>
     <h1>Send GET Request</h1>
     <button onclick="sendRequest()">Send Request</button>
-    <p id="response"></p>
+    <p id="response">???</p>
 </body>
 </html>
