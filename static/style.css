@@ -1,0 +1,28 @@
+#book-image {
+    width: 7vw;
+    height: 15vh;
+    margin: 0;
+    background-color: black;
+    margin-left: 1vw;
+}
+
+#books {
+    width: 10vw;
+    height: 21vh;
+    border-color: black;
+    border-width: 0.5vw;
+    text-decoration: none;
+    border: solid;
+    border-radius: 1vw;
+}
+
+#books li {
+    list-style: none;
+}
+
+#book-text {
+    width: 8vw;
+    height: 4vh;
+    text-decoration: none;
+    padding-left: 2vw;
+}

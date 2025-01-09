@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrer bok</title>
+    <script>
+        async function sendRequest() {
+            try {
+                const response = await fetch('http://localhost:1783/books')
+                const data = await response.json()
+                console.log('Data from server:', data)
+            } catch (error) {
+                
+            }
+        }
+        sendRequest();
+    </script>
+</head>
+<body>
+    <a href="register_book.html">Registrer bok</a>
+    <div>
+        <p></p>
+        <p></p>
+    </div>
+</body>
+<script src="frontend.js"></script>
+</html>
