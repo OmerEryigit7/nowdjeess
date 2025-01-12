@@ -9,6 +9,7 @@ require("dotenv").config()
 
 app.use(cors())
 app.use(express.static(path.join(__dirname, 'static')))
+app.use(express.json())
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'static/index.html'))
@@ -53,6 +54,20 @@ app.get('/books', (req, res) => {
     }
   })
 })
+
+app.post('/books', (req, res) => {
+  const { Tittel, Forfatter, ISBN } = req.body;
+
+  const query = 'INSERT INTO bøker (Tittel, Forfatter, ISBN) VALUES (?, ?, ?)';
+  database.execute(query, [Tittel, Forfatter, ISBN], (err, result) => {
+    if (err) {
+      console.error('Feil:', err);
+      res.status(500).json({ error: 'Kunne ikke registrere boken' });
+      return;
+    }
+    res.status(201).json({ message: 'Bok registrert', result });
+  });
+});
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`)

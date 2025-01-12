@@ -1,5 +1,3 @@
-const mysql = require('mysql2')
-
 const jsonUrl = 'http://localhost:1783/books'
 
 fetch(jsonUrl)
@@ -37,27 +35,45 @@ fetch(jsonUrl)
   })
 })
 
-let database = mysql.createConnection({
-  host: process.env.HOST,
-  user: process.env.SQLUSER,
-  password: process.env.PASSWORD,
-  database: process.env.DATABASE
-})
-
-register_book_button = document.getElementById('register_book_button').addEventListener("click", register_book)
-
 function register_book() {
-  book_title = document.getElementById('book-title-input').value
-  book_author = document.getElementById('book-author-input').value
-  book_isbn = document.getElementById('book-isbn-input').value
-  const query = 'INSERT INTO bøker (Tittel, Forfatter, ISBN) VALUES (?)';
+  const book_title = document.getElementById('book-title-input').value;
+  const book_author = document.getElementById('book-author-input').value;
+  const book_isbn = document.getElementById('book-isbn-input').value;
 
-  database.execute(query, [book_title, book_author, book_isbn], function (err, result) {
-    if (err) {
-      console.error('Feil', err);
-      return;
-    }
-    console.log('Ser ut til å funke:', result);
-  });
+  fetch('/books', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      Tittel: book_title,
+      Forfatter: book_author,
+      ISBN: book_isbn,
+    }),
+  })
+    .then(response => {
+      console.log('Raw response:', response);  // Log the raw response
 
+      // Check if the response is ok (status 2xx)
+      if (!response.ok) {
+        throw new Error('Feil ved registrering av boken');
+      }
+
+      // Check if response is JSON (it should be)
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return response.json();  // Parse JSON if the content type is correct
+      } else {
+        throw new Error('Serveren svarte ikke med JSON');
+      }
+    })
+    .then(data => {
+      console.log('Bok registrert:', data);  // Log the parsed data
+    })
+    .catch(error => {
+      console.error('Feil ved registrering:', error);
+    });
 }
+
+const register_book_button = document.getElementById('register_book_button');
+register_book_button.addEventListener("click", register_book);
