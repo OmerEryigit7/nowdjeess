@@ -1,6 +1,6 @@
 #book-image {
-    width: 7vw;
-    height: 15vh;
+    width: 5vw;
+    height: 12vh;
     margin: 0;
     background-color: black;
     margin-left: 1vw;
@@ -8,12 +8,15 @@
 
 #books {
     width: 10vw;
-    height: 21vh;
+    height: 25vh;
     border-color: black;
     border-width: 0.5vw;
     text-decoration: none;
     border: solid;
     border-radius: 1vw;
+    position: relative;
+    display: flex;
+    flex-flow: column;
 }
 
 #books li {
@@ -24,5 +27,27 @@
     width: 8vw;
     height: 4vh;
     text-decoration: none;
+    position: absolute;
     padding-left: 2vw;
+    font-size: small;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+#navbar {
+    height: 4vh;
+    margin-top: 2vh;
+    margin-bottom: 2vh;
+    width: 80vh;
+    background-color: cadetblue;
+}
+
+.author-text {
+    font-size: x-small
+}
+
+#books-container {
+    display: flex;
+    flex-direction: row;
 }

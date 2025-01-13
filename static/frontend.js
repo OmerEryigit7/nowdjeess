@@ -12,24 +12,35 @@ fetch(jsonUrl)
 })
 
 .then(data => {
-
-  const booksList = document.getElementById('book-text') 
+  const books_container = document.getElementById('books-container')
 
   data.forEach(book => {
+      const book_box = document.createElement('div')
+      book_box.id = "books"
+
+      const imageThingy = document.createElement('img')
+      imageThingy.id = "book-image"
+      imageThingy.src = 'default-CDDkjOW7-medium.jpg'
+
       const listItem = document.createElement('li')
+      listItem.id = "book-text"
 
       const title = document.createElement('span')
-      title.textContent = `Tittel: ${book.Tittel}`
+      title.textContent = `${book.Tittel}`
       listItem.appendChild(title)
 
       const spacebreak = document.createElement('br')
       listItem.appendChild(spacebreak)
 
       const author = document.createElement('span')
-      author.textContent = `Forfatter: ${book.Forfatter}`
+      author.textContent = `${book.Forfatter}`
       listItem.appendChild(author)
+      author.classList = "author-text"
 
-      booksList.appendChild(listItem)
+      book_box.appendChild(imageThingy)
+      book_box.appendChild(listItem)
+
+      books_container.appendChild(book_box)
 
       console.log(data)
   })
