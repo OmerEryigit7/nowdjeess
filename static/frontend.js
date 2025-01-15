@@ -50,6 +50,8 @@ function register_book() {
   const book_title = document.getElementById('book-title-input').value;
   const book_author = document.getElementById('book-author-input').value;
   const book_isbn = document.getElementById('book-isbn-input').value;
+  const på_lager = document.getElementById('book-stock-input').value
+  const beskrivelse = document.getElementById('book-description-input').value
 
   fetch('/books', {
     method: 'POST',
@@ -60,26 +62,26 @@ function register_book() {
       Tittel: book_title,
       Forfatter: book_author,
       ISBN: book_isbn,
+      På_lager: på_lager,
+      Beskrivelse: beskrivelse,
     }),
   })
     .then(response => {
-      console.log('Raw response:', response);  // Log the raw response
+      console.log('Raw response:', response);
 
-      // Check if the response is ok (status 2xx)
       if (!response.ok) {
         throw new Error('Feil ved registrering av boken');
       }
 
-      // Check if response is JSON (it should be)
       const contentType = response.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
-        return response.json();  // Parse JSON if the content type is correct
+        return response.json();
       } else {
         throw new Error('Serveren svarte ikke med JSON');
       }
     })
     .then(data => {
-      console.log('Bok registrert:', data);  // Log the parsed data
+      console.log('Bok registrert:', data);
     })
     .catch(error => {
       console.error('Feil ved registrering:', error);
@@ -88,3 +90,41 @@ function register_book() {
 
 const register_book_button = document.getElementById('register_book_button');
 register_book_button.addEventListener("click", register_book);
+
+function loaning_out() {
+  const book_id = document.getElementById('book-id-input').value;
+  const student_id = document.getElementById('student-id-input').value;
+
+  fetch('/utlaan', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      bok_id: book_id,
+      student_id: student_id,
+    }),
+  })
+    .then(response => {
+      console.log('Raw response:', response);
+
+      if (!response.ok) {
+        throw new Error('Feil ved registrering av boken');
+      }
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return response.json();
+      } else {
+        throw new Error('Serveren svarte ikke med JSON');
+      }
+    })
+    .then(data => {
+      console.log('Bok registrert:', data);
+    })
+    .catch(error => {
+      console.error('Feil ved registrering:', error);
+    });
+}
+
+const loaning_out_button = document.getElementById('loaning-out-button');
+loaning_out_button.addEventListener("click", loaning_out);
