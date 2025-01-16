@@ -27,7 +27,7 @@
     width: 8vw;
     height: 4vh;
     text-decoration: none;
-    position: absolute;
+    position: relative;
     padding-left: 2vw;
     font-size: small;
     display: flex;

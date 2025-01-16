@@ -68,10 +68,10 @@ app.get('/utlaan', (req, res) => {
 })
 
 app.post('/utlaan', (req, res) => {
-  const { bok_id, student_id} = req.body;
+  const { BokID, StudentID} = req.body;
 
-  const query = 'INSERT INTO utlån (bok_id, student_id) VALUES (?, ?)';
-  database.execute(query, [bok_id, student_id], (err, result) => {
+  const query = 'INSERT INTO utlån (BokID, StudentID) VALUES (?, ?)';
+  database.execute(query, [BokID, StudentID], (err, result) => {
     if (err) {
       console.error('Feil:', err);
       res.status(500).json({ error: 'Kunne ikke registrere utlån',  details: err.message});
@@ -82,10 +82,10 @@ app.post('/utlaan', (req, res) => {
 });
 
 app.post('/books', (req, res) => {
-  const { Tittel, Forfatter, ISBN, På_lager, Beskrivelse } = req.body;
+  const { Tittel, Forfatter, ISBN, PåLager, Beskrivelse } = req.body;
 
-  const query = 'INSERT INTO bøker (Tittel, Forfatter, ISBN, på_lager, beskrivelse) VALUES (?, ?, ?, ?, ?)';
-  database.execute(query, [Tittel, Forfatter, ISBN, På_lager, Beskrivelse], (err, result) => {
+  const query = 'INSERT INTO bøker (Tittel, Forfatter, ISBN, PåLager, beskrivelse) VALUES (?, ?, ?, ?, ?)';
+  database.execute(query, [Tittel, Forfatter, ISBN, PåLager, Beskrivelse], (err, result) => {
     if (err) {
       console.error('Feil:', err);
       res.status(500).json({ error: 'Kunne ikke registrere boken',  details: err.message});
