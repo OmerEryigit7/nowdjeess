@@ -31,6 +31,36 @@ database.connect((err) => {
     console.log("Feil", err)
   }
   else{
+    const createBøker = `
+      CREATE TABLE IF NOT EXISTS bøker (
+        BokID int not null auto_increment primary key,
+        Tittel varchar(100) not null,
+        Forfatter varchar(100) not null,
+        ISBN int not null,
+        PaaLager int not null default 1,
+        Beskrivelse varchar(50)
+      )`
+    database.query(createBøker)
+
+        const createStudent = `
+        CREATE TABLE IF NOT EXISTS student (
+          StudentID int not null auto_increment primary key,
+          Fornavn varchar(100) not null,
+          Etternavn varchar(30) not null,
+          Klassetrinn int not null
+        )`
+    database.query(createStudent)
+        
+        const createUtlån = `
+        CREATE TABLE IF NOT EXISTS utlån (
+          StudentID int  not null,
+          BokID int not null,
+          foreign key (StudentID) REFERENCES student(StudentID),
+          foreign key (BokID) REFERENCES bøker(BokID),
+          Utlånsdato datetime default current_timestamp
+        )`
+    database.query(createUtlån)
+        
     console.log("Funker ok")
     database.query('SELECT * FROM bøker', (err, results) => {
       if(err) {
@@ -82,10 +112,10 @@ app.post('/utlaan', (req, res) => {
 });
 
 app.post('/books', (req, res) => {
-  const { Tittel, Forfatter, ISBN, PåLager, Beskrivelse } = req.body;
+  const { Tittel, Forfatter, ISBN, PaaLager, Beskrivelse } = req.body;
 
-  const query = 'INSERT INTO bøker (Tittel, Forfatter, ISBN, PåLager, beskrivelse) VALUES (?, ?, ?, ?, ?)';
-  database.execute(query, [Tittel, Forfatter, ISBN, PåLager, Beskrivelse], (err, result) => {
+  const query = 'INSERT INTO bøker (Tittel, Forfatter, ISBN, PaaLager, Beskrivelse) VALUES (?, ?, ?, ?, ?)';
+  database.execute(query, [Tittel, Forfatter, ISBN, PaaLager, Beskrivelse], (err, result) => {
     if (err) {
       console.error('Feil:', err);
       res.status(500).json({ error: 'Kunne ikke registrere boken',  details: err.message});
@@ -93,6 +123,8 @@ app.post('/books', (req, res) => {
     }
     res.status(201).json({ message: 'Bok registrert', result });
   });
+
+  console.log(req.body)
 });
 
 app.listen(port, () => {

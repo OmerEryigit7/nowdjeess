@@ -46,9 +46,6 @@ fetch(jsonUrl)
   })
 })
 
-const loaning_out_button = document.getElementById('loaning-out-button');
-loaning_out_button.addEventListener("click", loaning_out);
-
 function register_book() {
   const book_title = document.getElementById('book-title-input').value;
   const book_author = document.getElementById('book-author-input').value;
@@ -65,7 +62,7 @@ function register_book() {
       Tittel: book_title,
       Forfatter: book_author,
       ISBN: book_isbn,
-      PåLager: på_lager,
+      PaaLager: på_lager,
       Beskrivelse: beskrivelse,
     }),
   })
@@ -89,11 +86,21 @@ function register_book() {
     .catch(error => {
       console.error('Feil ved registrering:', error);
     });
+
+    console.log('Inserting book:', { 
+      Tittel: book_title, 
+      Forfatter: book_author, 
+      ISBN: book_isbn, 
+      PaaLager: paa_lager, 
+      Beskrivelse: beskrivelse 
+    });
+    
 }
 
 const register_book_button = document.getElementById('register_book_button');
-register_book_button.addEventListener("click", register_book);
-
+if (register_book_button) {
+  register_book_button.addEventListener("click", register_book);
+}
 
 function loaning_out() {
   const book_id = document.getElementById('book-id-input').value;
@@ -128,4 +135,9 @@ function loaning_out() {
     .catch(error => {
       console.error('Feil ved registrering:', error);
     });
+}
+
+const loaning_out_button = document.getElementById('loaning-out-button');
+if (loaning_out_button) {
+  loaning_out_button.addEventListener("click", loaning_out);
 }
