@@ -139,3 +139,5 @@ node_modules/utils-merge/.npmignore
 /node_modules
 node_modules/utils-merge/.npmignore
 /node_modules/utils-merge
+node_modules/long/package.json
+node_modules/long/umd/index.d.ts

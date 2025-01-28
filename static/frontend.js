@@ -1,4 +1,5 @@
 const jsonUrl = 'http://localhost:1783/books'
+const response_to_user = document.getElementById('response')
 
 fetch(jsonUrl)
 .then(response => {
@@ -67,39 +68,20 @@ function register_book() {
     }),
   })
     .then(response => {
-      console.log('Raw response:', response);
-
       if (!response.ok) {
-        throw new Error('Feil ved registrering av boken');
+        throw new Error('Feil ved registrering av studenten');
       }
-
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        return response.json();
-      } else {
-        throw new Error('Serveren svarte ikke med JSON');
-      }
+      return response.json();
     })
-    .then(data => {
-      console.log('Bok registrert:', data);
+    .then(responseData => {
+      if (responseData.message) {
+        response_to_user.innerText = responseData.message;
+      }
+      console.log('Bok registrert:', responseData);
     })
     .catch(error => {
-      console.error('Feil ved registrering:', error);
+      console.error('Registrering av bok misslyktes:', error);
     });
-
-    console.log('Inserting book:', { 
-      Tittel: book_title, 
-      Forfatter: book_author, 
-      ISBN: book_isbn, 
-      PaaLager: paa_lager, 
-      Beskrivelse: beskrivelse 
-    });
-    
-}
-
-const register_book_button = document.getElementById('register_book_button');
-if (register_book_button) {
-  register_book_button.addEventListener("click", register_book);
 }
 
 function loaning_out() {
@@ -116,28 +98,76 @@ function loaning_out() {
       StudentID: student_id,
     }),
   })
-    .then(response => {
-      console.log('Raw response:', response);
-
-      if (!response.ok) {
-        throw new Error('Feil ved registrering av boken');
-      }
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        return response.json();
-      } else {
-        throw new Error('Serveren svarte ikke med JSON');
-      }
-    })
-    .then(data => {
-      console.log('Bok registrert:', data);
-    })
-    .catch(error => {
-      console.error('Feil ved registrering:', error);
-    });
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Feil ved utlån');
+    }
+    return response.json();
+  })
+  .then(responseData => {
+    if (responseData.message) {
+      response_to_user.innerText = responseData.message;
+    }
+    console.log('Utlån vellykket:', responseData);
+  })
+  .catch(error => {
+    console.error('Feil ved utlån:', error);
+  });
 }
 
-const loaning_out_button = document.getElementById('loaning-out-button');
-if (loaning_out_button) {
-  loaning_out_button.addEventListener("click", loaning_out);
+//const passwordInput = document.getElementById('passord-login-input').value
+//const loginButton = document.getElementById('login-button').value
+
+document.addEventListener('DOMContentLoaded', () => {
+  const register_book_button = document.getElementById('register_book_button');
+  if (register_book_button) {
+    register_book_button.addEventListener("click", register_book);
+  }
+
+  const loaning_out_button = document.getElementById('loaning-out-button');
+  if (loaning_out_button) {
+    loaning_out_button.addEventListener("click", loaning_out);
+  }
+
+  const registerStudentButton = document.getElementById('register_student_button');
+  if (registerStudentButton) {
+    registerStudentButton.addEventListener("click", addStudent);
+  }
+});
+
+function addStudent() {
+  const student_fornavn = document.getElementById('student-fornavn-input').value;
+  const student_etternavn = document.getElementById('student-etternavn-input').value;
+  const student_klassetrinn = document.getElementById('student-klassetrinn-input').value;
+  const student_epost = document.getElementById('student-epost-input').value;
+  const student_unhashed = document.getElementById('student-passord-input').value;
+
+  fetch('/student', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      Fornavn: student_fornavn,
+      Etternavn: student_etternavn,
+      Klassetrinn: student_klassetrinn,
+      Epost: student_epost,
+      HashedPassord: student_unhashed,
+    }),
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Feil ved registrering av studenten');
+    }
+    return response.json();
+  })
+  .then(responseData => {
+    if (responseData.message) {
+      response_to_user.innerText = responseData.message;
+    }
+    console.log('Student registrert:', responseData);
+  })
+  .catch(error => {
+    console.error('Feil ved registrering:', error);
+  });
 }
