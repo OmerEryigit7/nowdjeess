@@ -115,9 +115,6 @@ function loaning_out() {
   });
 }
 
-//const passwordInput = document.getElementById('passord-login-input').value
-//const loginButton = document.getElementById('login-button').value
-
 document.addEventListener('DOMContentLoaded', () => {
   const register_book_button = document.getElementById('register_book_button');
   if (register_book_button) {
@@ -132,6 +129,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const registerStudentButton = document.getElementById('register_student_button');
   if (registerStudentButton) {
     registerStudentButton.addEventListener("click", addStudent);
+  }
+
+  const loginButton = document.getElementById('login-button')
+  if (loginButton) {
+    loginButton.addEventListener('click', login)
   }
 });
 
@@ -169,5 +171,40 @@ function addStudent() {
   })
   .catch(error => {
     console.error('Feil ved registrering:', error);
+  });
+}
+
+function login() {
+  const epostInput = document.getElementById('brukernavn-login-input').value;
+  const passwordInput = document.getElementById('passord-login-input').value;
+
+  fetch('/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      Epost: epostInput,
+      Passord: passwordInput,
+    })
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Feil ved innlogging');
+    }
+    return response.json();
+  })
+  .then(responseData => {
+    if (responseData.token) {
+      localStorage.setItem('token', responseData.token);
+      alert('Innlogging vellykket!');
+      window.location.href = '/administrator';
+    } else {
+      alert('Feil ved innlogging: ' + responseData.error);
+    }
+  })
+  .catch(error => {
+    console.error('Feil ved innlogging:', error);
+    alert(error.message);
   });
 }

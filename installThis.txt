@@ -1,1 +1,1 @@
-npm install bcrypt express mysql2 dotenv
+npm install bcrypt express mysql2 dotenv jsonwebtoken

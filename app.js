@@ -15,16 +15,28 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'static/index.html'))
 })
 
-app.get('/registrerbok', (req, res) => {
-  res.sendFile(path.join(__dirname, 'static/registerbook.html'))
+app.get('/administrator', (req, res) => {
+  res.sendFile(path.join(__dirname, 'static/admin.html'))
+})
+
+app.get('/administrator/registrer_bok', (req, res) => {
+  res.sendFile(path.join(__dirname, 'static/register_book.html'))
 })
 
 app.get('/boker', (req, res) => {
   res.sendFile(path.join(__dirname, 'static/boker.html'))
 })
 
-app.get('/opprett_bruker', (req, res) => {
-  res.sendFile(path.join(__dirname, 'static/registerUser.html'))
+app.get('/administrator/opprett_bruker', (req, res) => {
+  res.sendFile(path.join(__dirname, 'static/register_user.html'))
+})
+
+app.get('/logg_in', (req, res) => {
+  res.sendFile(path.join(__dirname, 'static/login.html'))
+})
+
+app.get('/administrator/bok_utlaan', (req, res) => {
+  res.sendFile(path.join(__dirname, 'static/loan_out_book.html'))
 })
 
 let database = mysql.createConnection({
@@ -164,8 +176,40 @@ app.post('/student', async (req, res) => {
     }
     res.status(201).json({ message: 'Student registrert', result });
   });
-
 })
+
+const jwt = require('jsonwebtoken');
+
+app.post('/login', (req, res) => {
+  const { Epost, Passord } = req.body;
+
+  const query = 'SELECT * FROM student WHERE Epost = ?';
+  database.execute(query, [Epost], async (err, results) => {
+
+    if (results.length === 0) {
+      return res.status(401).json({ error: 'Ugyldig epost eller passord' });
+    }
+
+    const student = results[0];
+    const isMatch = await bcrypt.compare(Passord, student.HashedPassord);
+
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Ugyldig epost eller passord' });
+    }
+
+    const token = jwt.sign(
+      { id: student.StudentID, epost: student.Epost, rolle: student.Rolle }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '1h' } // Token expires in 1 hour
+    );
+
+    res.json({ 
+      message: 'Innlogging vellykket', 
+      token 
+    });
+  });
+});
+
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`)
