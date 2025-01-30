@@ -15,11 +15,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'static/index.html'))
 })
 
-app.get('/administrator', (req, res) => {
+app.get('/administrator', authenticateToken, checkRole, (req, res) => {
   res.sendFile(path.join(__dirname, 'static/admin.html'))
 })
 
-app.get('/administrator/registrer_bok', (req, res) => {
+app.get('/administrator/registrer_bok', authenticateToken, checkRole, (req, res) => {
   res.sendFile(path.join(__dirname, 'static/register_book.html'))
 })
 
@@ -27,7 +27,7 @@ app.get('/boker', (req, res) => {
   res.sendFile(path.join(__dirname, 'static/boker.html'))
 })
 
-app.get('/administrator/opprett_bruker', (req, res) => {
+app.get('/administrator/opprett_bruker', authenticateToken, checkRole, (req, res) => {
   res.sendFile(path.join(__dirname, 'static/register_user.html'))
 })
 
@@ -35,7 +35,7 @@ app.get('/logg_in', (req, res) => {
   res.sendFile(path.join(__dirname, 'static/login.html'))
 })
 
-app.get('/administrator/bok_utlaan', (req, res) => {
+app.get('/administrator/bok_utlaan', authenticateToken, checkRole, (req, res) => {
   res.sendFile(path.join(__dirname, 'static/loan_out_book.html'))
 })
 
@@ -70,7 +70,7 @@ database.connect((err) => {
             Klassetrinn int not null,
             Epost varchar(200) not null unique,
             HashedPassord varchar(250),
-            Rolle enum('admin, student') not null default 'student'
+            Rolle enum('admin', 'student') not null default 'student'
           )`
     database.query(createStudent)
         
@@ -210,6 +210,28 @@ app.post('/login', (req, res) => {
   });
 });
 
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1]
+  if (token == null) return res.sendStatus(401)
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    console.log(err)
+    if (err) return res.sendStatus(403)
+    req.user = user
+    next()
+  })
+}
+
+function checkRole() {
+  return (req, res, next) => {
+    if (req.user.Rolle === 'admin') {
+      return next()
+    } else {
+      return res.sendStatus(403)
+    }
+  }
+}
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`)
