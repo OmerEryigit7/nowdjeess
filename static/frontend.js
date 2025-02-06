@@ -188,23 +188,25 @@ function login() {
       Passord: passwordInput,
     })
   })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Feil ved innlogging');
-    }
-    return response.json();
-  })
+  .then(response => response.json())
   .then(responseData => {
-    if (responseData.token) {
-      localStorage.setItem('token', responseData.token);
+    console.log("Parsed responseData:", responseData);
+  
+    if (responseData.message === 'Innlogging vellykket') {
       alert('Innlogging vellykket!');
-      window.location.href = '/administrator';
+      window.location.replace('/administrator');
     } else {
-      alert('Feil ved innlogging: ' + responseData.error);
+      alert('Feil ved innlogging: ' + (responseData.error || 'Ukjent feil'));
     }
   })
   .catch(error => {
-    console.error('Feil ved innlogging:', error);
+    console.error(error);
     alert(error.message);
   });
 }
+fetch('/administrator', {
+  credentials: 'include'
+})
+.catch(error => {
+  console.error(error);
+});

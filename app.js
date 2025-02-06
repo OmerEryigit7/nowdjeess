@@ -1,4 +1,5 @@
 const express = require('express')
+const cookieParser = require('cookie-parser');
 const cors = require('cors')
 const app = express()
 const port = 1783
@@ -10,16 +11,18 @@ require("dotenv").config()
 app.use(cors())
 app.use(express.static(path.join(__dirname, 'static')))
 app.use(express.json())
+app.use(cookieParser());
+
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'static/index.html'))
 })
 
-app.get('/administrator', authenticateToken, checkRole, (req, res) => {
+app.get('/administrator', authenticateToken, checkRole(),  (req, res) => {
   res.sendFile(path.join(__dirname, 'static/admin.html'))
 })
 
-app.get('/administrator/registrer_bok', authenticateToken, checkRole, (req, res) => {
+app.get('/administrator/registrer_bok', authenticateToken,  checkRole(), (req, res) => {
   res.sendFile(path.join(__dirname, 'static/register_book.html'))
 })
 
@@ -27,7 +30,7 @@ app.get('/boker', (req, res) => {
   res.sendFile(path.join(__dirname, 'static/boker.html'))
 })
 
-app.get('/administrator/opprett_bruker', authenticateToken, checkRole, (req, res) => {
+app.get('/administrator/opprett_bruker', authenticateToken,  checkRole(), (req, res) => {
   res.sendFile(path.join(__dirname, 'static/register_user.html'))
 })
 
@@ -35,7 +38,7 @@ app.get('/logg_in', (req, res) => {
   res.sendFile(path.join(__dirname, 'static/login.html'))
 })
 
-app.get('/administrator/bok_utlaan', authenticateToken, checkRole, (req, res) => {
+app.get('/administrator/bok_utlaan', authenticateToken,  checkRole(), (req, res) => {
   res.sendFile(path.join(__dirname, 'static/loan_out_book.html'))
 })
 
@@ -200,32 +203,39 @@ app.post('/login', (req, res) => {
     const token = jwt.sign(
       { id: student.StudentID, epost: student.Epost, rolle: student.Rolle }, 
       process.env.JWT_SECRET, 
-      { expiresIn: '1h' } // Token expires in 1 hour
+      { expiresIn: '1h' }
     );
 
-    res.json({ 
-      message: 'Innlogging vellykket', 
-      token 
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV,
+      sameSite: 'strict',
+      maxAge: 3600000 //en time
     });
+
+    res.json({ message: 'Innlogging vellykket' });
   });
 });
 
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.split(' ')[1]
-  if (token == null) return res.sendStatus(401)
+  const token = req.cookies.token;
+  console.log(req.cookies.token)
+  if (token == null) return res.sendStatus(401);
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    console.log(err)
-    if (err) return res.sendStatus(403)
-    req.user = user
-    next()
-  })
+    if (err) {
+      console.error("Token verification error:", err);
+      return res.sendStatus(403);
+    }
+    req.user = user;
+    next();
+  });
 }
+
 
 function checkRole() {
   return (req, res, next) => {
-    if (req.user.Rolle === 'admin') {
+    if (req.user.rolle === 'admin') {
       return next()
     } else {
       return res.sendStatus(403)
