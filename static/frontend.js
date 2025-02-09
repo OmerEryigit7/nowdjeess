@@ -210,3 +210,77 @@ fetch('/administrator', {
 .catch(error => {
   console.error(error);
 });
+
+const fetch_student_books = document.getElementById('search-student')
+if (fetch_student_books) {
+  fetch_student_books.addEventListener('click', search_student)
+}
+
+function search_student() {
+  const student_fornavn = document.getElementById('student-fornavn-input').value;
+
+  var url = student_fornavn 
+  if (student_fornavn) {
+    url = `/student/search?student_fornavn=${encodeURIComponent(student_fornavn)}`;
+  } else {
+    url = '/student/search';
+  }
+  
+  fetch(url, {
+    method: 'GET',
+  })
+  .then(response => response.json()) 
+  .then(data => {
+    if (data && data.length > 0) {
+      console.log(data);
+      
+      data.forEach(student => {
+        const student_info_book_info_display = document.getElementById('student-info')
+
+        const student_info = document.createElement('div')
+        const student_info_text = document.createElement('p')
+        const student_select = document.createElement('button')
+
+        student_info_text.innerHTML = `${student.Fornavn} ${student.Etternavn} ${student.Epost} - ${student.Klassetrinn}`
+        student_select.innerHTML = "Velg student"
+        student_select.addEventListener('click', () => display_student_books(student));
+
+
+        student_info.appendChild(student_info_text)
+        student_info.appendChild(student_select)
+        student_info_book_info_display.appendChild(student_info)
+    })
+
+    } else {
+      console.log('No students found');
+    }
+  })
+  .catch(error => {
+    console.error('Error fetching student data:', error);
+  });
+}
+
+function display_student_books(student) {
+  console.log(`Fetching books for student: ${student.Fornavn} ${student.Etternavn}`);
+  
+  fetch(`/utlaan/search?StudentID=${student.StudentID}`, { method: 'GET' })
+    .then(response => response.json())
+    .then(loans => {
+      const book_info_display = document.getElementById('student-info');
+      book_info_display.innerHTML = '';
+
+      if (loans.length > 0) {
+        loans.forEach(loan => {
+          const book_entry = document.createElement('p');
+          console.log(loan)
+          book_entry.innerHTML = `${loan.Tittel} by ${loan.Forfatter}`;
+          book_info_display.appendChild(book_entry);
+        });
+      } else {
+        book_info_display.innerHTML = '';
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching books:', error);
+    });
+}

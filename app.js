@@ -42,6 +42,11 @@ app.get('/administrator/bok_utlaan', authenticateToken,  checkRole(), (req, res)
   res.sendFile(path.join(__dirname, 'static/loan_out_book.html'))
 })
 
+app.get('/administrator/returner', authenticateToken,  checkRole(), (req, res) => {
+  res.sendFile(path.join(__dirname, 'static/return.html'))
+})
+
+
 let database = mysql.createConnection({
   host: process.env.HOST,
   user: process.env.SQLUSER,
@@ -153,11 +158,40 @@ app.post('/utlaan', (req, res) => {
   });
 });
 
+app.get('/utlaan/search', (req, res) => {
+  const studentId = req.query.StudentID;
+  console.log('Student object:', studentId);  // Check the full student object
+
+  // Validate that StudentID is a number, you could also add further validation as needed
+  if (studentId && isNaN(studentId)) {
+    return res.status(400).send("Invalid StudentID.");
+  }
+
+  let query = 'SELECT bøker.Tittel, bøker.Forfatter FROM utlån JOIN bøker ON utlån.BokID = bøker.BokID';
+  let params = [];
+
+  if (studentId) {
+    query += ' WHERE utlån.StudentID = ?';
+    params.push(studentId);
+  }
+
+  database.query(query, params, (err, results) => {
+    if (err) {
+      console.log("Error fetching loans:", err);
+      res.status(500).send("Error fetching loaned books.");
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+
+
 app.get('/student', (req, res) => {
   database.query('SELECT * FROM student', (err, results) => {
     if (err) {
       console.log("Feil ved spørring:", err)
-      res.status(500).send("Feil ved henting av bøker.")
+      res.status(500).send("Feil ved henting av studenter.")
     } 
     else {
       res.json(results)
@@ -180,6 +214,19 @@ app.post('/student', async (req, res) => {
     res.status(201).json({ message: 'Student registrert', result });
   });
 })
+
+app.get('/student/search', (req, res) => {
+  const student_fornavn = req.query.student_fornavn;
+  
+  database.query('SELECT * FROM student WHERE fornavn = ?', [student_fornavn], (err, results) => {
+    if (err) {
+      console.log("Feil ved spørring:", err);
+      res.status(500).send("Feil ved henting av studenter.");
+    } else {
+      res.json(results);
+    }
+  });
+});
 
 const jwt = require('jsonwebtoken');
 
@@ -231,7 +278,6 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
-
 
 function checkRole() {
   return (req, res, next) => {
