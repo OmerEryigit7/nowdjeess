@@ -167,7 +167,7 @@ app.get('/utlaan/search', (req, res) => {
     return res.status(400).send("Invalid StudentID.");
   }
 
-  let query = 'SELECT bøker.Tittel, bøker.Forfatter FROM utlån JOIN bøker ON utlån.BokID = bøker.BokID';
+  let query = 'SELECT bøker.Tittel, bøker.Forfatter, bøker.BokID FROM utlån JOIN bøker ON utlån.BokID = bøker.BokID';
   let params = [];
 
   if (studentId) {
@@ -184,6 +184,25 @@ app.get('/utlaan/search', (req, res) => {
     }
   });
 });
+
+app.post('/utlaan/return', (req, res) => {
+  const { studentID, bokID } = req.body;
+  
+  if (!studentID || !bokID) {
+    return res.status(400).send("StudentID og BokID kreves.");
+  }
+
+  const deleteLoanQuery = 'DELETE FROM utlån WHERE StudentID = ? AND BokID = ?';
+
+  database.query(deleteLoanQuery, [studentID, bokID], (err, result) => {
+    if (err) {
+      console.error("Feil ved retur av bok:", err);
+      return res.status(500).send("Feil ved retur av bok.");
+    }
+    res.send("Bok returnert.");
+  });
+});
+
 
 
 

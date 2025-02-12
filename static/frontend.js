@@ -275,6 +275,13 @@ function display_student_books(student) {
           console.log(loan)
           book_entry.innerHTML = `${loan.Tittel} by ${loan.Forfatter}`;
           book_info_display.appendChild(book_entry);
+          const return_book_button = document.createElement('button');
+          return_book_button.innerText = "Marker bok som levert";
+          return_book_button.setAttribute('student-id', student.StudentID);
+          return_book_button.setAttribute('bok-id', loan.BokID )
+          return_book_button.addEventListener('click', return_book);
+          book_info_display.appendChild(return_book_button)
+
         });
       } else {
         book_info_display.innerHTML = '';
@@ -284,3 +291,26 @@ function display_student_books(student) {
       console.error('Error fetching books:', error);
     });
 }
+
+function return_book(EventListener) {
+  const button = EventListener.target;
+  const bokID = button.getAttribute('bok-id')
+  const studentID = button.getAttribute('student-id')
+
+  fetch('/utlaan/return', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ studentID, bokID }),
+  })
+    .then(response => response.text())
+    .then(message => {
+      alert(message);
+      button.parentElement.remove(); // Fjern bokelementet fra listen etter retur
+    })
+    .catch(error => {
+      console.error('Feil ved retur av bok:', error);
+    });
+}
+
